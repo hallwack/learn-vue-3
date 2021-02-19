@@ -1,87 +1,69 @@
 <template>
   <div id="app">
-    <p>Hello, {{ msg }}!</p>
-    <button @click="increment()">Click Me!</button>
-    <p>Increment : {{ count }}</p>
-
-    <!-- <div v-if="isEven(count)">Even</div>
-    <div v-else>Odd</div> -->
-
-    <!-- <div :title="number"> -->
-    <number
-      v-for="number in numbers"
-      :key="number"
-      :number="number"
-      @chosen="putInArray"
-    />
-    <h3>Clicked Numbers</h3>
-    <number v-for="number in clickedNumbers" :key="number" :number="number" />
-
-    <!-- </div> -->
-
-    <input @input="input" />
-    <div v-if="error">{{ error }}</div>
-
-    <!-- v-model -->
-    <div>
-      <h2>V - Model</h2>
-      <input type="checkbox" v-model="check" value="a" />
-      <input type="checkbox" v-model="check" value="b" />
-      <input type="checkbox" v-model="check" value="c" /> {{ check }}
-    </div>
-    <!-- <div v-for="number in isEvenList" :key="number">{{ number }}</div> -->
-
-    <Hello />
+    <form @submit.prevent="submit" action="" class="form">
+      <my-input
+        name="Username"
+        :rules="{ required: true, min: 5 }"
+        :value="username.value"
+        @update="update"
+        type="text"
+      />
+      <my-input
+        name="Password"
+        :rules="{ required: true, min: 10 }"
+        :value="password.value"
+        @update="update"
+        type="password"
+      />
+      <my-button
+        color="white"
+        background="darkslateblue"
+        :disabled="!validation"
+      />
+    </form>
   </div>
   <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
 </template>
 
 <script>
 // import HelloWorld from './components/HelloWorld.vue'
-import Hello from "./components/Hello.vue";
-import Number from "./components/Number.vue";
+import MyButton from "./components/MyButton.vue";
+import MyInput from "./components/MyInput.vue";
 
 export default {
-  name: "App",
+  components: {
+    MyButton,
+    MyInput,
+  },
   data() {
     return {
-      msg: "Raihan Adam",
-      count: 0,
-      numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-      value: "",
-      error: "",
-      check: ["a"],
-      clickedNumbers: [],
+      valid: true,
+      username: {
+        value: "user",
+        valid: false,
+      },
+      password: {
+        value: "",
+        valid: false,
+      },
     };
   },
   computed: {
-    // isEvenList() {
-    //   return this.numbers.filter((num) => {
-    //     return this.isEven(num);
-    //   });
-    // },
+    validation() {
+      return this.username.valid && this.password.valid;
+    },
   },
   methods: {
-    increment() {
-      this.count += 1;
+    submit() {
+      console.log("Submit");
     },
-    input($event) {
-      this.value = $event.target.value;
-      if (this.value.length < 5) {
-        this.error = "Too short";
-      } else {
-        this.error = "";
-      }
+    update(payload) {
+      console.log(payload);
+      this[payload.name.toLowerCase()] = {
+        value: payload.value,
+        valid: payload.valid,
+      };
     },
-    putInArray(payload) {
-      console.log("works", payload.number);
-      this.clickedNumbers.push(payload.number);
-    },
-  },
-  components: {
-    // HelloWorld
-    Hello,
-    Number,
   },
 };
 </script>
@@ -102,5 +84,10 @@ export default {
 
 .blue {
   color: blue;
+}
+
+.form {
+  max-width: 400px;
+  width: 50%;
 }
 </style>
