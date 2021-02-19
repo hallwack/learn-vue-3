@@ -1,69 +1,63 @@
 <template>
   <div id="app">
-    <form @submit.prevent="submit" action="" class="form">
-      <my-input
-        name="Username"
-        :rules="{ required: true, min: 5 }"
-        :value="username.value"
-        @update="update"
-        type="text"
-      />
-      <my-input
-        name="Password"
-        :rules="{ required: true, min: 10 }"
-        :value="password.value"
-        @update="update"
-        type="password"
-      />
-      <my-button
-        color="white"
-        background="darkslateblue"
-        :disabled="!validation"
-      />
-    </form>
+    <pokemon-cards
+      :pokemons="starters"
+      @pokemonClicked="fetchEvolutions"
+      :selectedId="selectedId"
+    />
+
+    <pokemon-cards :pokemons="evolutions" />
+
+    <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
   </div>
-  <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
 </template>
 
 <script>
 // import HelloWorld from './components/HelloWorld.vue'
-import MyButton from "./components/MyButton.vue";
-import MyInput from "./components/MyInput.vue";
+import PokemonCards from "./pokemon/PokemonCards.vue";
 
+const api = "https://pokeapi.co/api/v2/pokemon";
+const starter_ids = [1, 4, 7, 20, 29];
 export default {
-  components: {
-    MyButton,
-    MyInput,
-  },
   data() {
     return {
-      valid: true,
-      username: {
-        value: "user",
-        valid: false,
-      },
-      password: {
-        value: "",
-        valid: false,
-      },
+      starters: [],
+      pokemon: null,
+      evolutions: [],
+      selectedId: null,
     };
   },
-  computed: {
-    validation() {
-      return this.username.valid && this.password.valid;
-    },
+  async created() {
+    const starters = await this.fetchData(starter_ids);
+    this.starters = starters;
   },
   methods: {
-    submit() {
-      console.log("Submit");
+    async fetchEvolutions(pokemon) {
+      this.selectedId = pokemon.id;
+      this.evolutions = await this.fetchData([pokemon.id + 1, pokemon.id + 2]);
     },
-    update(payload) {
-      console.log(payload);
-      this[payload.name.toLowerCase()] = {
-        value: payload.value,
-        valid: payload.valid,
-      };
+    async fetchData(ids) {
+      const response = await Promise.all(
+        ids.map((id) => window.fetch(`${api}/${id}`))
+      );
+      const data = await Promise.all(response.map((res) => res.json()));
+      return data.map((datum) => ({
+        id: datum.id,
+        name: datum.name,
+        sprite: datum.sprites.other["official-artwork"].front_default,
+        types: datum.types.map((type) => type.type.name),
+      }));
+      // const data = await response.json();
+      // const pokemon = {
+      // name: data.name,
+      // sprite: data.sprites.other["official-artwork"],
+      // types: data.types.map((type) => ({ name: type.type.name })),
+      // };
+      // console.log(pokemon);
     },
+  },
+  components: {
+    PokemonCards,
   },
 };
 </script>
@@ -76,18 +70,5 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
-}
-
-.red {
-  color: red;
-}
-
-.blue {
-  color: blue;
-}
-
-.form {
-  max-width: 400px;
-  width: 50%;
 }
 </style>
