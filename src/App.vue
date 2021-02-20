@@ -1,60 +1,42 @@
 <template>
   <div id="app">
-    <div>
-      <h5>Ref</h5>
-      <button @click="increment">Click Me!</button>
-      <p>{{ count }}</p>
-    </div>
-    <div>
-      <h5>Reactive</h5>
-      <button @click="increase('a')">Click Me!</button>
-      <p>{{ numbers.a }}</p>
-      <button @click="increase('b')">Click Me!</button>
-      <p>{{ numbers.b }}</p>
-    </div>
-    <div>
-      <h5>Before and After with Watch</h5>
-      <button @click="a++">Click Me!</button>
-      <p>{{ a }}</p>
-      <button @click="b++">Click Me!</button>
-      <p>{{ b }}</p>
-      <div v-for="msg in history" :key="msg">
-        {{ msg }}
-      </div>
-    </div>
-    <div>
-      <h4>Total = {{ total }}</h4>
-    </div>
-    <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
+    <input type="text" :value="currentHashtag" @input="setHashtag" />
+    <card v-for="post in filteredPosts" :key="post">
+      <template v-slot:title>
+        {{ post.title }}
+      </template>
+      <template v-slot:content>
+        {{ post.content }}
+      </template>
+      <template v-slot:desc>
+        <controls :post="post" />
+      </template>
+      <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
+    </card>
+    {{ currentHashtag }}
   </div>
 </template>
 
 <script>
 // import HelloWorld from './components/HelloWorld.vue'
-import { useNumbers } from "./composition-api/numbers";
+import { store } from "./microblog/store";
+import Card from "./pokemon/Card.vue";
+import Controls from "./microblog/Controls.vue";
+import { computed } from "vue";
 
 export default {
+  components: {
+    Card,
+    Controls,
+  },
   setup() {
-    const {
-      increment,
-      increase,
-      count,
-      numbers,
-      total,
-      a,
-      b,
-      history,
-    } = useNumbers();
-
+    const setHashtag = (evt) => {
+      store.setHashtag(evt.target.value);
+    };
     return {
-      increment,
-      increase,
-      count,
-      numbers,
-      total,
-      a,
-      b,
-      history,
+      filteredPosts: store.filteredPosts,
+      currentHashtag: computed(() => store.state.currentHashtag),
+      setHashtag,
     };
   },
 };
