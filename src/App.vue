@@ -1,63 +1,61 @@
 <template>
   <div id="app">
-    <pokemon-cards
-      :pokemons="starters"
-      @pokemonClicked="fetchEvolutions"
-      :selectedId="selectedId"
-    />
-
-    <pokemon-cards :pokemons="evolutions" />
-
+    <div>
+      <h5>Ref</h5>
+      <button @click="increment">Click Me!</button>
+      <p>{{ count }}</p>
+    </div>
+    <div>
+      <h5>Reactive</h5>
+      <button @click="increase('a')">Click Me!</button>
+      <p>{{ numbers.a }}</p>
+      <button @click="increase('b')">Click Me!</button>
+      <p>{{ numbers.b }}</p>
+    </div>
+    <div>
+      <h5>Before and After with Watch</h5>
+      <button @click="a++">Click Me!</button>
+      <p>{{ a }}</p>
+      <button @click="b++">Click Me!</button>
+      <p>{{ b }}</p>
+      <div v-for="msg in history" :key="msg">
+        {{ msg }}
+      </div>
+    </div>
+    <div>
+      <h4>Total = {{ total }}</h4>
+    </div>
     <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
   </div>
 </template>
 
 <script>
 // import HelloWorld from './components/HelloWorld.vue'
-import PokemonCards from "./pokemon/PokemonCards.vue";
+import { useNumber } from "./composition-api/numbers.js";
 
-const api = "https://pokeapi.co/api/v2/pokemon";
-const starter_ids = [1, 4, 7, 20, 29];
 export default {
-  data() {
+  setup() {
+    const {
+      increment,
+      increase,
+      count,
+      numbers,
+      total,
+      a,
+      b,
+      history,
+    } = useNumber();
+
     return {
-      starters: [],
-      pokemon: null,
-      evolutions: [],
-      selectedId: null,
+      increment,
+      increase,
+      count,
+      numbers,
+      total,
+      a,
+      b,
+      history,
     };
-  },
-  async created() {
-    const starters = await this.fetchData(starter_ids);
-    this.starters = starters;
-  },
-  methods: {
-    async fetchEvolutions(pokemon) {
-      this.selectedId = pokemon.id;
-      this.evolutions = await this.fetchData([pokemon.id + 1, pokemon.id + 2]);
-    },
-    async fetchData(ids) {
-      const response = await Promise.all(
-        ids.map((id) => window.fetch(`${api}/${id}`))
-      );
-      const data = await Promise.all(response.map((res) => res.json()));
-      return data.map((datum) => ({
-        id: datum.id,
-        name: datum.name,
-        sprite: datum.sprites.other["official-artwork"].front_default,
-        types: datum.types.map((type) => type.type.name),
-      }));
-      // const data = await response.json();
-      // const pokemon = {
-      // name: data.name,
-      // sprite: data.sprites.other["official-artwork"],
-      // types: data.types.map((type) => ({ name: type.type.name })),
-      // };
-      // console.log(pokemon);
-    },
-  },
-  components: {
-    PokemonCards,
   },
 };
 </script>
