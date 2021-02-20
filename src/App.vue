@@ -31,7 +31,7 @@
 
 <script>
 // import HelloWorld from './components/HelloWorld.vue'
-import { useNumber } from "./composition-api/numbers.js";
+import { useNumbers } from "./composition-api/numbers";
 
 export default {
   setup() {
@@ -44,7 +44,7 @@ export default {
       a,
       b,
       history,
-    } = useNumber();
+    } = useNumbers();
 
     return {
       increment,
